@@ -22,66 +22,25 @@ body {
   grid-template-columns: repeat(var(--side), auto);
   margin: auto;
 }
-.plus{
+
+.btn{
   font-size: 20px;
   text-align: center;
   font-weight: bold;
-  color: #fff;
+  color: #000;
   width: 100px;
   height: 100px;
   opacity: 1;
   z-index: 0;
+  background-color: white;
+  border: none;
 }
-.minus {
-  font-size: 20px;
-  text-align: center;
-  font-weight: bold;
+.btn:hover{
+  background-color: #716f6f;
   color: #fff;
-  width: 100px;
-  height: 100px;
-  opacity: 1;
-  z-index: 0;
+  cursor: pointer;
 }
-.shuffle {
-  font-size: 20px;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-  width: 100px;
-  height: 100px;
-  opacity: 1;
-  z-index: 0;
-}
-.check {
-  font-size: 20px;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-  width: 100px;
-  height: 100px;
-  opacity: 1;
-  z-index: 0;
-}
-.reset {
-  font-size: 20px;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-  width: 100px;
-  height: 100px;
-  opacity: 1;
-  z-index: 0;
-}
-.solution {
-  font-size: 20px;
-  text-align: center;
-  font-weight: bold;
-  color: #fff;
-  width: 100px;
-  height: 100px;
-  opacity: 1;
-  z-index: 0;
-}
+
 .item {
   width: 100px;
   height: 100px;
