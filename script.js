@@ -102,10 +102,63 @@ $(".shuffle").click(function() {
 });
 
 $(".solution").click(function() {
+  etats = [];
   etats.push(current_state);
-  dfs(current_state, 0 , 30, empty_cell);
-  console.log("fin de l'auto");
+  dfsResolution().then(function () {
+    console.log("debut de la resolution auto");
+  }).then(function(){
+    reverseResolve(moves.reverse());
+  }).then(function () {
+    console.log("fin resolution");
+  })
 });
+
+function dfsResolution(){
+  return new Promise((resolve, reject) => {
+    if(dfs(current_state, 0 , 11, empty_cell)){
+      resolve("fin de la resolution auto");
+    }
+  })
+}
+function reverseResolve(movesList){
+
+  let autoX = empty_cell.i;
+  let autoY = empty_cell.j;
+
+  let counter = 0;
+  let maxTurn = movesList.length;
+
+  let i = setInterval(function(){
+    if(counter === maxTurn) {
+      clearInterval(i);
+    }
+    switch (movesList[counter]) {
+      case 'H':
+        autoY = autoY -1;
+        break;
+      case 'B':
+        autoY = autoY +1;
+        break;
+      case 'G':
+        autoX = autoX -1;
+        break;
+      case 'D':
+        autoX = autoX +1;
+        break;
+    }
+
+    current_state[empty_cell.j][empty_cell.i] = current_state[autoY][autoX];
+    current_state[autoY][autoX] = 0;
+    empty_cell.j = autoY;
+    empty_cell.i = autoX;
+
+    displayState(current_state);
+    counter++;
+  }, 500);
+
+  console.log("fin boucle");
+
+}
 
 // Pour augmenter / diminuer la taille d'un côté.
 $(".plus").click(function() {
@@ -144,7 +197,7 @@ var span = document.getElementsByClassName("close")[0];
 
 // Pour afficher la fenetre quand on a gagné, appeler cette fonction
 function displayWin () {
-  modal.style.display = "block";
+  //modal.style.display = "block";
 }
 
 // Quand on clique sur <span> (x), on ferme
@@ -230,6 +283,7 @@ function reset () {
 reset();
 
 let calls = 0;
+let moves = [];
 
 function dfs(e, p , m, emptyCell){
 
@@ -242,14 +296,10 @@ function dfs(e, p , m, emptyCell){
   console.log("nb calls " + calls);
 
   if(p > m){
-    console.log("trop de coups")
     return false;
   }
 
-
   if (checkWin(e)) {
-    console.log(e);
-    displayState(e);
     displayWin();
     return true;
   }
@@ -272,24 +322,14 @@ function dfs(e, p , m, emptyCell){
   for(let i = 0; i <mouvements_possible.length; i++){
     const [nouvel_etat, newEmptyCell] = applyMoveAuto(e, emptyCell, mouvements_possible[i]);
     if(!searchForArray(etats, nouvel_etat)){
-      console.log(mouvements_possible[i]);
       etats.push(nouvel_etat);
       if(dfs(nouvel_etat, p+1, m, newEmptyCell)){
+        moves.push(mouvements_possible[i]);
         return true;
       }
     }
   }
-  // mouvements_possible.forEach(function (value) {
-  //
-  //   const [nouvel_etat, newEmptyCell] = applyMoveAuto(e, emptyCell, value);
-  //   if(!searchForArray(etats, nouvel_etat)){
-  //     console.log(value);
-  //     etats.push(nouvel_etat);
-  //     if(dfs(nouvel_etat, p+1, m, newEmptyCell)){
-  //       return true;
-  //     }
-  //   }
-  // });
+
   return false;
 
 }
@@ -339,8 +379,7 @@ function searchForArray(listOfEtats, currentEtat){
   let b = JSON.stringify(currentEtat);
 
   let c = a.indexOf(b);
-  if(c !== -1){
-    console.log('present');
+  if(c !== -1){ //check si etat deja present dans la liste
     retour = true;
   }
 
@@ -360,7 +399,7 @@ function shuffleArray(lastState, lastEmptyCell) {
 
   let randomChoice = 0;
 
-  for (let i = 0; i < 100; i++){
+  for (let i = 0; i < 10; i++){
     randomChoice = (Math.floor((4)*Math.random()+1));
 
     let nextShuffleX = lastEmptyCell.i;
