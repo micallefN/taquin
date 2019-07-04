@@ -34,7 +34,6 @@ function setInitState () {
   }
   empty_cell.i = side-1;
   empty_cell.j = side-1;
-
 }
 
 function applyMove(state, ec, move) {
@@ -95,22 +94,26 @@ $(".check").click(function() {
 $(".reset").click(reset);
 
 $(".shuffle").click(function() {
-
   current_state = shuffleArray(current_state, empty_cell);
   displayState (current_state);
-
 });
 
+// Solution pour resolution DFS
+// $(".solution").click(function() {
+//   etats = [];
+//   etats.push(current_state);
+//   dfsResolution().then(function () {
+//     console.log("debut de la resolution auto");
+//   }).then(function(){
+//     reverseResolve(moves.reverse());
+//   }).then(function () {
+//     console.log("fin resolution");
+//   })
+// });
+
 $(".solution").click(function() {
-  etats = [];
-  etats.push(current_state);
-  dfsResolution().then(function () {
-    console.log("debut de la resolution auto");
-  }).then(function(){
-    reverseResolve(moves.reverse());
-  }).then(function () {
-    console.log("fin resolution");
-  })
+  bfs([current_state, []]);
+  console.log(solution);
 });
 
 function dfsResolution(){
@@ -155,9 +158,6 @@ function reverseResolve(movesList){
     displayState(current_state);
     counter++;
   }, 500);
-
-  console.log("fin boucle");
-
 }
 
 // Pour augmenter / diminuer la taille d'un côté.
@@ -197,14 +197,13 @@ var span = document.getElementsByClassName("close")[0];
 
 // Pour afficher la fenetre quand on a gagné, appeler cette fonction
 function displayWin () {
-  //modal.style.display = "block";
+  modal.style.display = "block";
 }
 
 // Quand on clique sur <span> (x), on ferme
 span.onclick = function() {
   modal.style.display = "none";
 }
-
 // On ferme aussi si on clique n'importe où
 window.onclick = function(event) {
   if (event.target == modal) {
@@ -214,13 +213,10 @@ window.onclick = function(event) {
 
 // Pour récupérer l'appui sur les flèches du clavier
 document.onkeydown = checkKey;
-
 function checkKey(e) {
     e = e || window.event;
-
     if (e.keyCode === 38) {
       // up arrow
-
       applyMove (current_state, empty_cell, HAUT);
     }
     else if (e.keyCode === 40) {
@@ -254,7 +250,6 @@ function checkWin(current_array){
   }
 
   let currentPos = 1;
-
   let win = true;
 
   deepCopyArray.forEach(function (row) {
@@ -263,14 +258,12 @@ function checkWin(current_array){
      if(currentPos === (side*side)){
        currentPos = 0;
      }
-
      if(currentCase !== currentPos){
        win = false;
      }
      currentPos++;
    })
  });
-
   return win;
 }
 
@@ -334,7 +327,54 @@ function dfs(e, p , m, emptyCell){
 
 }
 
-function applyMoveAuto(state, ec, move) {
+// function applyMoveAuto(state, ec, move) {
+//
+//   let deepCopyArray = [];
+//
+//   for(let i = 0; i < state.length; i++){
+//     deepCopyArray[i] = [];
+//     for(let j = 0; j < state[i].length; j++){
+//
+//       deepCopyArray[i][j] = state[i][j];
+//     }
+//   }
+//
+//   let nextX = ec.i;
+//   let nextY = ec.j;
+//
+//   switch (move) {
+//     case "H":
+//       nextY = ec.j - 1;
+//       break;
+//     case "B":
+//       nextY = ec.j + 1;
+//       break;
+//     case "D":
+//       nextX = ec.i + 1;
+//       break;
+//     case "G":
+//       nextX = ec.i -1;
+//       break;
+//   }
+//
+//   deepCopyArray[ec.j][ec.i] = deepCopyArray[nextY][nextX];
+//
+//   deepCopyArray[nextY][nextX] = 0;
+//
+//   return [deepCopyArray,{i:nextX,j:nextY}] ;
+// }
+function applyMoveAutoBFS(state, move) {
+
+  let autoBfsemptyCell = {};
+
+  for(let j = 0; j < state.length; j++){
+    for(let i = 0; i< state[j].length; i++){
+      if(state[j][i] === 0){
+        autoBfsemptyCell.i = i;
+        autoBfsemptyCell.j = j;
+      }
+    }
+  }
 
   let deepCopyArray = [];
 
@@ -346,29 +386,29 @@ function applyMoveAuto(state, ec, move) {
     }
   }
 
-  let nextX = ec.i;
-  let nextY = ec.j;
+  let nextX = autoBfsemptyCell.i;
+  let nextY = autoBfsemptyCell.j;
 
   switch (move) {
     case "H":
-      nextY = ec.j - 1;
+      nextY = autoBfsemptyCell.j - 1;
       break;
     case "B":
-      nextY = ec.j + 1;
+      nextY = autoBfsemptyCell.j + 1;
       break;
     case "D":
-      nextX = ec.i + 1;
+      nextX = autoBfsemptyCell.i + 1;
       break;
     case "G":
-      nextX = ec.i -1;
+      nextX = autoBfsemptyCell.i -1;
       break;
   }
 
-  deepCopyArray[ec.j][ec.i] = deepCopyArray[nextY][nextX];
+  deepCopyArray[autoBfsemptyCell.j][autoBfsemptyCell.i] = deepCopyArray[nextY][nextX];
 
   deepCopyArray[nextY][nextX] = 0;
 
-  return [deepCopyArray,{i:nextX,j:nextY}] ;
+  return deepCopyArray ;
 }
 
 function searchForArray(listOfEtats, currentEtat){
@@ -376,6 +416,32 @@ function searchForArray(listOfEtats, currentEtat){
   let retour  = false;
 
   let a = JSON.stringify(listOfEtats);
+  let b = JSON.stringify(currentEtat);
+
+  let c = a.indexOf(b);
+  if(c !== -1){ //check si etat deja present dans la liste
+    retour = true;
+  }
+
+  return retour;
+}
+function searchForArrayQueue(listOfQueuedEtats, currentEtat){
+
+  let retour  = false;
+
+  let deepCopyArray = [];
+
+  for(let i = 0; i < listOfQueuedEtats.length; i++){
+    deepCopyArray[i] = listOfQueuedEtats[i][0][0];
+
+  }
+
+  let pureEtat = [];
+  for(let i = 0; i < deepCopyArray.length; i++){
+    pureEtat[i] = deepCopyArray[i];
+  }
+  
+  let a = JSON.stringify(pureEtat);
   let b = JSON.stringify(currentEtat);
 
   let c = a.indexOf(b);
@@ -431,4 +497,74 @@ function shuffleArray(lastState, lastEmptyCell) {
   }
 
   return shuffledArray;
+}
+let visitedState = [];
+let queueState = [];
+let solution = [];
+let nbTour = 0;
+function bfs(etat, mouv){
+
+  // doit retrouver position case vide
+  let bfsEmptyCell = {};
+
+  for(let j = 0; j < etat[0].length; j++){
+    for(let i = 0; i< etat[0][j].length; i++){
+      if(etat[0][j][i] === 0){
+        bfsEmptyCell.i = i;
+        bfsEmptyCell.j = j;
+      }
+    }
+  }
+
+  //hard copy pour eviter les shadow
+  let moves = [];
+  for(let i = 0; i <  etat[1].length; i++){
+    moves[i] = etat[1][i];
+  }
+  moves.push(mouv);
+  etat[1] = moves;
+
+  nbTour++;
+  console.log(nbTour);
+
+  queueState.shift();
+
+  if (checkWin(etat[0])) {
+    //displayWin();
+
+    console.log("etat final ");
+    console.log(etat);
+    return true;
+  }
+
+  visitedState.push(etat[0]);
+
+  const mouvements_possible = [];
+
+  if(bfsEmptyCell.j-1 >= 0){
+    mouvements_possible.push(HAUT);
+  }
+  if(bfsEmptyCell.j + 1 <= side-1){
+    mouvements_possible.push(BAS);
+  }
+  if(bfsEmptyCell.i-1 >= 0){
+    mouvements_possible.push(GAUCHE);
+  }
+  if(bfsEmptyCell.i + 1 <= side-1){
+    mouvements_possible.push(DROITE);
+  }
+
+  for(let i = 0; i <mouvements_possible.length; i++){
+    let nouvel_etat = applyMoveAutoBFS(etat[0], mouvements_possible[i]);
+    if(!searchForArray(visitedState, nouvel_etat) && !searchForArrayQueue(queueState, nouvel_etat)){
+
+      queueState.push([[nouvel_etat, moves], mouvements_possible[i]]);
+    }
+  }
+  if(queueState.length> 0){
+    if(bfs(queueState[0][0], queueState[0][1])){
+      return true;
+    }
+  }
+  return false;
 }
